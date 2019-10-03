@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingleScaleRetinex", "SingleScaleRetinex\SingleScaleRetinex.csproj", "{72672832-0660-47B6-98BB-C20D6E51A7B6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72672832-0660-47B6-98BB-C20D6E51A7B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72672832-0660-47B6-98BB-C20D6E51A7B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72672832-0660-47B6-98BB-C20D6E51A7B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72672832-0660-47B6-98BB-C20D6E51A7B6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {19BD7BF0-7961-4E68-9061-E655633236A0}
+	EndGlobalSection
+EndGlobal
