@@ -18,15 +18,15 @@ namespace SingleScaleRetinex
             //var image = new Image<Rgb, byte>(path.Replace("\"", ""));
 
             var path = Console.ReadLine();
-            if (path == "123")
+            if (path == "1")
                 path = @"C:\Users\Dmitry Vasilevich\Desktop\24.jpg";
 
             var image = new Image<Rgb, byte>(path.Replace("\"", ""));
 
-            image.ApplySSR(7, 80);
+            //image.ApplySSR(7, 80);
 
-            //var proc = System.Diagnostics.Process.Start(image.ApplySSR(3, 80));
-            //var proc1 = System.Diagnostics.Process.Start(Extentions.SingleScaleRetinex(image, 3, 10));
+            var proc = System.Diagnostics.Process.Start(image.ApplySSR(5, 80));
+            var proc1 = System.Diagnostics.Process.Start(Extensions.SingleScaleRetinex(image, 5, 80));
         }
     }
 }

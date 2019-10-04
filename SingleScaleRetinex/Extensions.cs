@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SingleScaleRetinex
 {
-    public static class Extentions
+    public static class Extensions
     {
         /// <summary>
         /// Applies Single Scale Retinex to the image
@@ -25,42 +25,27 @@ namespace SingleScaleRetinex
             var data = img.Data;
             var dataCopy = (byte[,,])data.Clone();
 
-            var kernel = CreateGaussKernel(sigma, gaussKernelDim);
-
             for (int channel = 0; channel < channels.Length; channel++)
             {
-                FlipMatrixByDimensions(kernel, 0, 1);
-                var convolved = ConvolveValues(dataCopy, kernel, channel);
+                //for (int sc = 0; sc < scales.Length; sc++)
+                //{
+                    var kernel = CreateGaussKernel(sigma, gaussKernelDim);
+                    FlipMatrixByDimensions(kernel, 0, 1);
 
-                for (int i = 0; i < img.Rows; i++)
-                {
-                    for (int j = 0; j < img.Cols; j++)
+                    var convolved = ConvolveValues(dataCopy, kernel, channel);
+
+                    for (int i = 0; i < img.Rows; i++)
                     {
-                        var value = Math.Log(data[i, j, channel]) - Math.Log(convolved[i, j, channel]);
-                        value = value * 255 - 127.5;
+                        for (int j = 0; j < img.Cols; j++)
+                        {
+                            var value = Math.Log(data[i, j, channel]) - Math.Log(convolved[i, j, channel]);
+                            //var value = Math.Log(data[i, j, channel] / convolved[i, j, channel]);
+                            value = value * 255 + 127.5;
 
-                        data[i, j, channel] = (byte)value;
+                            data[i, j, channel] = (byte)value;
+                        }
                     }
-                }
-
-                //var kernel = new int[,]
-                //{
-                //    { -1, -2, -1 },
-                //    { 0, 0, 0 },
-                //    { 1, 2, 1 },
-                //};
-
-                //var matrix = new int[,]
-                //{
-                //    { 1, 2, 3 },
-                //    { 4, 5, 6 },
-                //    { 7, 8, 9 },
-                //};
-
-                //FlipMatrixByDimensions(kernel, 0, 1);
-
-                //ConvolveValues(matrix, kernel, 0);
-
+                //}
             }
 
             //var c = ConvolveValues(dataCopy, kernel, 0);
@@ -162,7 +147,7 @@ namespace SingleScaleRetinex
             return savePath;
         }
 
-        private static void FlipMatrixByDimensions(double[,] arr, params int[] dimensions)
+        public static void FlipMatrixByDimensions(double[,] arr, params int[] dimensions)
         {
             foreach (var dimension in dimensions)
             {
@@ -234,25 +219,27 @@ namespace SingleScaleRetinex
 
         private static byte[,,] ConvolveValues(byte[,,] input, double[,] kernel, int channel)
         {
-            var height = input.GetUpperBound(0);
-            var width = input.GetUpperBound(1);
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
 
-            int offsetY = kernel.GetUpperBound(0) + 1, offsetX = kernel.GetUpperBound(1) + 1;
+            int sizeY = kernel.GetLength(0), sizeX = kernel.GetLength(1);
 
-            var sizeY = offsetY / 2;
-            var sizeX = offsetX / 2;
+            var offsetY = sizeY / 2;
+            var offsetX = sizeX / 2;
 
             var convolved = (byte[,,])input.Clone();
 
-            for (int y = 0; y <= height; y++)
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x <= width; x++)
+                for (int x = 0; x < width; x++)
                 {
                     var sum = 0.0;
 
-                    for (int kernelY = -sizeY; kernelY <= sizeY; kernelY++)
+                    // [kernel] values -- coords in matrix according to kernel
+                    // [i, j] -- kernel 0-based coords
+                    for (int kernelY = -offsetY, j = 0; kernelY <= offsetY; kernelY++, j++)
                     {
-                        for (int kernelX = -sizeX; kernelX <= sizeX; kernelX++)
+                        for (int kernelX = -offsetX, i = 0; kernelX <= offsetX; kernelX++, i++)
                         {
                             var inputY = y + kernelY;
                             var inputX = x + kernelX;
@@ -260,14 +247,58 @@ namespace SingleScaleRetinex
                             if (inputX < 0 || inputY < 0)
                                 continue;
 
-                            if (inputX > width || inputY > height)
+                            if (inputX >= width || inputY >= height)
                                 continue;
 
-                            sum += input[inputY, inputX, channel] * kernel[kernelY + sizeY, kernelX + sizeX];
+                            sum += input[inputY, inputX, channel] * kernel[j, i];
                         }
                     }
 
                     convolved[y, x, channel] = (byte)sum;
+                }
+            }
+
+            return convolved;
+        }
+
+        public static int[,,] ConvolveValuesTest(int[,,] input, double[,] kernel, int channel)
+        {
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
+
+            int sizeY = kernel.GetLength(0), sizeX = kernel.GetLength(1);
+
+            var offsetY = sizeY / 2;
+            var offsetX = sizeX / 2;
+
+            var convolved = (int[,,])input.Clone();
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    var sum = 0.0;
+
+                    // [kernel] values -- coords in matrix according to kernel
+                    // [i, j] -- kernel 0-based coords
+                    for (int kernelY = -offsetY, j = 0; kernelY <= offsetY; kernelY++, j++)
+                    {
+                        for (int kernelX = -offsetX, i = 0; kernelX <= offsetX; kernelX++, i++)
+                        {
+                            var inputY = y + kernelY;
+                            var inputX = x + kernelX;
+
+                            if (inputX < 0 || inputY < 0)
+                                continue;
+
+                            if (inputX >= width || inputY >= height)
+                                continue;
+
+                            sum += input[inputY, inputX, channel] * kernel[j, i];
+                        }
+                    }
+
+                    convolved[y, x, channel] = (int)sum;
                 }
             }
 
