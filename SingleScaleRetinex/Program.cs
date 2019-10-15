@@ -19,7 +19,7 @@ namespace SingleScaleRetinex
 
             var image = new Image<Bgr, byte>(path.Replace("\"", ""));
 
-            System.Diagnostics.Process.Start(image.ApplySSR(7, 80));
+            System.Diagnostics.Process.Start(image.ApplySSR(80));
             //System.Diagnostics.Process.Start(image.ApplyMSR(7));
             //System.Diagnostics.Process.Start(Extensions.SingleScaleRetinex(image, 7, 80));
         }
