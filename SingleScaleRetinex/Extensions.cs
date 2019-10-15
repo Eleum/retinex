@@ -15,10 +15,10 @@ namespace SingleScaleRetinex
 
         /// <summary>
         /// Applies Single Scale Retinex to the image
-        /// <paramref name="image">Image to process</paramref>
-        /// <paramref name="gaussKernelDim">Gaussian kernel dimension</paramref>
-        /// <paramref name="sigma">Width of the Gaussian kerner</paramref>
         /// </summary>
+        /// <param name="img">Image to process</param>
+        /// <param name="sigma">Width of the Gaussian kerner</param>
+        /// <returns></returns>
         public static string ApplySSR(this Image<Bgr, byte> img, int sigma)
         {
             // double for more precision
