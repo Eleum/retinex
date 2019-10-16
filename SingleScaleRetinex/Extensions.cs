@@ -59,7 +59,7 @@ namespace SingleScaleRetinex
             return savePath;
         }
 
-        public static string ApplyMSR(this Image<Bgr, byte> img, IEnumerable<int> sigmas)
+        public static string ApplyMSR(this Image<Bgr, byte> img, IEnumerable<double> weights, IEnumerable<int> sigmas)
         {
             var image = img.Convert<Bgr, double>();
 
@@ -74,19 +74,23 @@ namespace SingleScaleRetinex
             CvInvoke.cvConvertScale(image, imgHelper, 1, 0);
             CvInvoke.Log(imgHelper, imgLogImage);
 
-            foreach (var sigma in sigmas)
+            // normalization
+            var sum = weights.Sum();
+            if (weights.Sum() != 1.0)
+                CvInvoke.cvConvertScale(image, image, sum, 0);
+
+            for (int i = 0; i < weights.Count(); i++)
             {
-                var diff = image.Clone();
                 var helper = image.Clone();
                 var ptr = helper.Ptr;
 
-                QuickFilter(ref helper, sigma);
+                QuickFilter(ref helper, sigmas.ElementAt(i));
 
                 CvInvoke.cvConvertScale(helper, imgHelper, 1, 0);
                 CvInvoke.Log(imgHelper, imgLogConvolved);
                 CvInvoke.cvReleaseImage(ref ptr);
 
-                CvInvoke.cvConvertScale(imgLogConvolved, imgLogConvolved, 1.0/3, 0);
+                CvInvoke.cvConvertScale(imgLogConvolved, imgLogConvolved, weights.ElementAt(i), 0);
                 CvInvoke.Subtract(imgLogImage, imgLogConvolved, imgLogImage);
             }
 
