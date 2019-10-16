@@ -32,7 +32,7 @@ namespace SingleScaleRetinex
             CvInvoke.Log(imgHelper, imgLogImage);
 
             var imgBlurred = image.Clone();
-            ApplyFilter(ref imgBlurred, sigma);
+            QuickFilter(ref imgBlurred, sigma);
 
             CvInvoke.cvConvertScale(imgBlurred, imgHelper, 1, 0);
             CvInvoke.Log(imgHelper, imgLogConvolved);
@@ -53,13 +53,56 @@ namespace SingleScaleRetinex
             CvInvoke.cvReleaseImage(ref ptrLogImage);
             CvInvoke.cvReleaseImage(ref ptrLogConvolved);
 
-            var savePath = $"{DateTime.Now.ToString("HH_mm_")}SSR_output.jpg";
+            var savePath = $"{DateTime.Now.ToString("HH_mm_")}output_SSR.jpg";
             image.Save(savePath);
 
             return savePath;
         }
 
-        public static void ApplyFilter(ref Image<Bgr, double> img, int sigma)
+        public static string ApplyMSR(this Image<Bgr, byte> img, IEnumerable<int> sigmas)
+        {
+            var image = img.Convert<Bgr, double>();
+
+            var imgHelper = new Image<Bgr, double>(image.Size);
+            var imgLogImage = new Image<Bgr, double>(image.Size);
+            var imgLogConvolved = new Image<Bgr, double>(image.Size);
+
+            var helperPtr = imgHelper.Ptr;
+            var logPtr = imgLogImage.Ptr;
+            var cLogPtr = imgLogConvolved.Ptr;
+
+            CvInvoke.cvConvertScale(image, imgHelper, 1, 0);
+            CvInvoke.Log(imgHelper, imgLogImage);
+
+            foreach (var sigma in sigmas)
+            {
+                var diff = image.Clone();
+                var helper = image.Clone();
+                var ptr = helper.Ptr;
+
+                QuickFilter(ref helper, sigma);
+
+                CvInvoke.cvConvertScale(helper, imgHelper, 1, 0);
+                CvInvoke.Log(imgHelper, imgLogConvolved);
+                CvInvoke.cvReleaseImage(ref ptr);
+
+                CvInvoke.cvConvertScale(imgLogConvolved, imgLogConvolved, 1.0/3, 0);
+                CvInvoke.Subtract(imgLogImage, imgLogConvolved, imgLogImage);
+            }
+
+            CvInvoke.cvConvertScale(imgLogImage, image, 128, 128);
+
+            CvInvoke.cvReleaseImage(ref helperPtr);
+            CvInvoke.cvReleaseImage(ref logPtr);
+            CvInvoke.cvReleaseImage(ref cLogPtr);
+
+            var savePath = $"{DateTime.Now.ToString("HH_mm_")}output_MSR.jpg";
+            image.Save(savePath);
+
+            return savePath;
+        }
+
+        public static void QuickFilter(ref Image<Bgr, double> img, int sigma)
         {
             if (sigma > 300)
                 sigma = 300;
@@ -82,7 +125,7 @@ namespace SingleScaleRetinex
                 var subPtr = sub.Ptr;
                 CvInvoke.PyrDown(img, sub);
 
-                ApplyFilter(ref sub, sigma / 2);
+                QuickFilter(ref sub, sigma / 2);
 
                 CvInvoke.Resize(sub, img, img.Size);
                 CvInvoke.cvReleaseImage(ref subPtr);
