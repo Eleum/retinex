@@ -1,18 +1,12 @@
-﻿using Emgu.CV;
-using Emgu.CV.Bioinspired;
+﻿using System;
+using Emgu.CV;
 using Emgu.CV.Structure;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SingleScaleRetinex
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             Console.Write("Path: ");
             var path = Console.ReadLine();

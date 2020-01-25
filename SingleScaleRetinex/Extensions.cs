@@ -13,7 +13,6 @@ namespace SingleScaleRetinex
 {
     public static class Extensions
     {
-
         /// <summary>
         /// Applies Single Scale Retinex to the image
         /// </summary>
